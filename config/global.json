@@ -1,0 +1,11 @@
+{
+    "applications": {
+        "Chirps": {
+            "applicationId": "***REMOVED***", 
+            "masterKey": "***REMOVED***"
+        }, 
+        "_default": {
+            "link": "Chirps"
+        }
+    }
+}
