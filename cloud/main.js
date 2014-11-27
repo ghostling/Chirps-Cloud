@@ -2,6 +2,33 @@ Parse.Cloud.useMasterKey();
 
 
 /**
+ * Job! Does stuff periodically. Check Parse dashboard to change interval.
+ */
+Parse.Cloud.job('notificationJob', function(request,response) {
+    Parse.Cloud.run('handleExpiredChirps', {}, {
+        success: function(blah) {
+            status.message('(1/2) Just finished handling expired chirps...');
+        },
+        error: function(error) {
+            console.error('(Something went wrong with handling expired chirps.');
+            status.error(error);
+        }
+    });
+    Parse.Cloud.run('handleFavoriteChirps', {}, {
+        success: function(blah) {
+            status.message('(2/2) Just finished handling favorited chirps...');
+        },
+        error: function(error) {
+            console.error('(Something went wrong with handling favorited chirps.');
+            status.error(error);
+        }
+    });
+
+    status.success('...done with my jobs!');
+});
+
+
+/**
  * Given a 'userId' and a 'message' in the request.params, push a notification
  * to the specified user with the given message.
  */
@@ -67,6 +94,7 @@ Parse.Cloud.define('handleExpiredChirps', function(request, response) {
     });
 
 });
+
 
 /**
  * Queries Chirps for ones that are expiring in approx. a day and sends a push
