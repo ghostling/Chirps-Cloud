@@ -62,9 +62,51 @@ Parse.Cloud.define('handleExpiredChirps', function(request, response) {
             },
             error: function(chirp, error) {
                 console.log(chirp);
-                console.log(error);
                 response.error(error);
             }
     });
 
+});
+
+/**
+ * Queries Chirps for ones that are expiring in approx. a day and sends a push
+ * notification to all users that follow it.
+ */
+Parse.Cloud.define('handleFavoriteChirps', function(request, response) {
+    var currentDateTime = new Date();
+    var tomorrowDateTime = new Date();
+    var millisecondsDay = 24*60*60*1000;
+    tomorrowDateTime.setTime(currentDateTime.getTime() + millisecondsDay);
+
+    var chirpQuery = new Parse.Query('Chirp');
+
+    // Want Chirps that expire between now and tomorrow.
+    chirpQuery.greaterThanOrEqualTo('expirationDate', currentDateTime);
+    chirpQuery.lessThanOrEqualTo('expirationDate', tomorrowDateTime);
+
+    chirpQuery.each(
+        function(chirp) {
+            var users = chirp.get('favoriting');
+
+            if (users) {
+                var title = chirp.get('title');
+                var message = '"' + title + '"' + ' is happening in a day!';
+
+                for (var i = 0; i < users.length; i++) {
+                    Parse.Cloud.run('pushMsgToUser', {
+                        userId: users[i],
+                        message: message
+                    });
+                }
+            }
+        },
+        {
+            success: function(chirp) {
+                response.success('Favorited chirps handled successfully.');
+            },
+            error: function(chirp, error) {
+                console.log(chirp);
+                response.error(error);
+            }
+    });
 });
