@@ -60,22 +60,23 @@ Parse.Cloud.define('pushMsgToUser', function(request, response) {
 /**
  * Queries for expired chirps. If the expired chirps have been approved,
  * delete them and inform the user via a push notification.
- *
- * TODO: For expired chirps that are not approved, delete them, inform the user,
- * as well as on the admin console.
  */
 Parse.Cloud.define('handleExpiredChirps', function(request, response) {
     var currentDateTime = new Date();
 
     var chirpQuery = new Parse.Query('Chirp');
     chirpQuery.lessThanOrEqualTo('expirationDate', currentDateTime);
-    chirpQuery.equalTo('chirpApproval', true);
 
     chirpQuery.each(
         function(chirp) {
             var title = chirp.get('title');
             var message = 'Your chirp "' + title + '" has expired.';
             var userId = chirp.get('user').id;
+            var chirpApproval = chirp.get('chirpApproval');
+
+            if (!chirpApproval) {
+                message += 'Sorry it wasn\'t approved in time. :(';
+            }
 
             chirp.destroy();
             Parse.Cloud.run('pushMsgToUser', {
