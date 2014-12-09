@@ -6,7 +6,7 @@ Parse.Cloud.useMasterKey();
  */
 Parse.Cloud.job('notificationJob', function(request,response) {
     Parse.Cloud.run('handleExpiredChirps', {}, {
-        success: function(blah) {
+        success: function() {
             status.message('(1/2) Just finished handling expired chirps...');
         },
         error: function(error) {
@@ -15,7 +15,7 @@ Parse.Cloud.job('notificationJob', function(request,response) {
         }
     });
     Parse.Cloud.run('handleFavoriteChirps', {}, {
-        success: function(blah) {
+        success: function() {
             status.message('(2/2) Just finished handling favorited chirps...');
         },
         error: function(error) {
@@ -23,7 +23,6 @@ Parse.Cloud.job('notificationJob', function(request,response) {
             status.error(error);
         }
     });
-
     status.success('...done with my jobs!');
 });
 
@@ -85,7 +84,7 @@ Parse.Cloud.define('handleExpiredChirps', function(request, response) {
             });
         },
         {
-            success: function (chirp) {
+            success: function() {
                 response.success('Expired chirps handled successfully.');
             },
             error: function(chirp, error) {
@@ -93,7 +92,6 @@ Parse.Cloud.define('handleExpiredChirps', function(request, response) {
                 response.error(error);
             }
     });
-
 });
 
 
@@ -130,7 +128,7 @@ Parse.Cloud.define('handleFavoriteChirps', function(request, response) {
             }
         },
         {
-            success: function(chirp) {
+            success: function() {
                 response.success('Favorited chirps handled successfully.');
             },
             error: function(chirp, error) {
